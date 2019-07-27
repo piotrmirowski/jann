@@ -27,18 +27,19 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Upgrade Pip
-pip install --upgrade pip
+pip3 install --upgrade pip
 
 # Install requirements
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # Install Jann
-python setup.py install
+python3 setup.py install
 
 # Set environmental variable for TensorFlow Hub
 export TFHUB_CACHE_DIR=Jann/data/module
 
 # Make the TFHUB_CACHE_DIR
+mkdir Jann/data
 mkdir ${TFHUB_CACHE_DIR}
 
 # Download and unpack the Universal Sentence Encoder Lite model (~25 MB)
@@ -55,8 +56,8 @@ fi
 
 ```sh
 cd Jann
-# chmod +x run_examples/run_CMDC.sh
-./run_examples/run_CMDC.sh
+# chmod +x run_examples/run_Backgrounds.sh
+./run_examples/run_Backgrounds.sh
 ```
 
 
@@ -71,24 +72,24 @@ source venv/bin/activate
 cd Jann
 
 # Number of lines from input source to use
-export NUMTREES='100'
+export NUMTREES='10'
 # Number of neighbors to return
-export NUMNEIGHBORS='10'
+export NUMNEIGHBORS='3'
 
 # Define the environmental variables
-export INFILE="data/CMDC/all_lines_50.txt"
+export INFILE="data/Backgrounds/backgrounds.txt"
 
 # Embed the lines using the encoder (Universal Sentence Encoder)
-python embed_lines.py --infile=${INFILE} --verbose &&
+python3 embed_lines.py --infile=${INFILE} --verbose &&
 
 # Process the embeddings and save as unique strings and numpy array
-python process_embeddings.py --infile=${INFILE} --verbose &&
+python3 process_embeddings.py --infile=${INFILE} --verbose &&
 
 # Index the embeddings using an approximate nearest neighbor (annoy)
-python index_embeddings.py --infile=${INFILE} --verbose --num_trees=${NUMTREES} &&
+python3 index_embeddings.py --infile=${INFILE} --verbose --num_trees=${NUMTREES} &&
 
 # Build a simple command line interaction for model testing
-python interact_with_model.py --infile=${INFILE} --verbose --num_neighbors=${NUMNEIGHBORS}
+python3 interact_with_model.py --infile=${INFILE} --verbose --num_neighbors=${NUMNEIGHBORS}
 ```
 
 ## Interaction
@@ -99,9 +100,15 @@ For interaction with the model, the only files needed are the unique strings (`_
 
 `jann` is designed to run as a web service to be queried by a dialogue interface builder. For instance, `jann` is natively configured to be compatible with Dialogflow. The web service runs using the Flask micro-framework and uses the performance-oriented gunicorn application server to launch the application with 4 workers.
 
+Install gunicorn and Flask:
+```
+pip3 install gunicorn flask
+```
+
+Start the server:
 ```sh
 cd Jann
-gunicorn --bind 0.0.0.0:8000 app:JANN -w 4
+gunicorn --bind 0.0.0.0:8123 app_backgrounds:JANN -w 1
 ```
 
 Once `jann` is running, in a new terminal window you can test the load on the server with [Locust](https://locust.io/), as defined in `Jann/tests/locustfile.py`:
@@ -245,7 +252,7 @@ uwsgi --socket :8001 -w wsgi:JANN
 ```
 Solution (for OSX 10.13):
 ```sh
-pip install --ignore-installed --upgrade https://github.com/lakshayg/tensorflow-build/releases/download/tf1.9.0-macos-py27-py36/tensorflow-1.9.0-cp36-cp36m-macosx_10_13_x86_64.whl
+pip3 install --ignore-installed --upgrade https://github.com/lakshayg/tensorflow-build/releases/download/tf1.9.0-macos-py27-py36/tensorflow-1.9.0-cp36-cp36m-macosx_10_13_x86_64.whl
 ```
 
 ### Error/Warning:
@@ -286,7 +293,7 @@ py.test --cov-report=xml --cov=Jann
 
 ## Credits
 
-`jann` is made with love by [Kory Mathewson](https://korymathewson.com).
+`jann` is made with love by [Kory Mathewson](https://korymathewson.com) and [Piotr Mirowski](https://piotrmirowski.com).
 
 Icon made by [Freepik](http://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/).
 
