@@ -1,7 +1,7 @@
 # source venv/bin/activate
 
 # Number of lines from input source to use
-export NUMTREES='10'
+export NUMTREES='100'
 export NUMNEIGHBORS='3'
 
 # Define the environmental variables
